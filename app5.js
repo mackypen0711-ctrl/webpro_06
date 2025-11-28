@@ -4,7 +4,11 @@ const app = express();
 app.set('view engine', 'ejs');
 app.use("/public", express.static(__dirname + "/public"));
 
-// データの定義（京葉線の駅データ）
+// リクエストボディ(POSTリクエスト)を受け取るための設定を追加
+// PDFスライドのP.11の要件を適用 [cite: 105]
+app.use(express.urlencoded({ extended: true }));
+
+// データの定義（京葉線の駅データ - 既存のデータはそのまま残す）
 let station =  [
   { id:1, code:"JE01", name:"東京駅"},
   { id:2, code:"JE07", name:"舞浜駅"},
@@ -15,6 +19,17 @@ let station =  [
   { id:7, code:"JB25", name:"新小岩駅"},
 ];
 
+let station2 = [
+{ id:1, code:"JE01", name:"東京駅", change:"総武本線，中央線，etc", passengers:403831, distance:0 },
+{ id:2, code:"JE02", name:"八丁堀駅", change:"日比谷線", passengers:31071, distance:1.2 },
+{ id:3, code:"JE05", name:"新木場駅", change:"有楽町線，りんかい線", passengers:67206, distance:7.4 },
+{ id:4, code:"JE07", name:"舞浜駅", change:"舞浜リゾートライン", passengers:76156,distance:12.7 },
+{ id:5, code:"JE12", name:"新習志野駅", change:"", passengers:11655, distance:28.3 },
+{ id:6, code:"JE17", name:"千葉みなと駅", change:"千葉都市モノレール", passengers:16602, distance:39.0 },
+{ id:7, code:"JE18", name:"蘇我駅", change:"内房線，外房線", passengers:31328, distance:43.0 },
+];
+
+// 既存のルーティング
 app.get("/hello1", (req, res) => {
   const message1 = "Hello world";
   const message2 = "Bon jour";
@@ -74,14 +89,12 @@ app.get("/janken", (req, res) => {
   res.render( 'janken', display );
 });
 
-// データ一覧表示の処理の追加
 app.get("/keiyo", (req, res) => {
   // 本来ならここにDBとのやり取りが入る
   //res.render('db1', { data: station });
   res.redirect('/public/keiyo_add.html');　検索用
 });
 
-// データ追加の処理の追加（一覧表示を使用）
 app.get("/keiyo_add", (req, res) =>  { 
   let id  = req.query.id; 
   let code  = req.query.code; 
@@ -91,26 +104,76 @@ app.get("/keiyo_add", (req, res) =>  {
   // 登録後にデータ一覧ページを返す
   res.render('db1', { data: station  }); // ←ここを変更
 });
-
-let station2 = [
-{ id:1, code:"JE01", name:"東京駅", change:"総武本線，中央線，etc", passengers:403831, distance:0 },
-{ id:2, code:"JE02", name:"八丁堀駅", change:"日比谷線", passengers:31071, distance:1.2 },
-{ id:3, code:"JE05", name:"新木場駅", change:"有楽町線，りんかい線", passengers:67206, distance:7.4 },
-{ id:4, code:"JE07", name:"舞浜駅", change:"舞浜リゾートライン", passengers:76156,distance:12.7 },
-{ id:5, code:"JE12", name:"新習志野駅", change:"", passengers:11655, distance:28.3 },
-{ id:6, code:"JE17", name:"千葉みなと駅", change:"千葉都市モノレール", passengers:16602, distance:39.0 },
-{ id:7, code:"JE18", name:"蘇我駅", change:"内房線，外房線", passengers:31328, distance:43.0 },
-];
-
+// 既存のkeiyo2一覧表示
 app.get("/keiyo2", (req, res) => {
 // 本来ならここにDBとのやり取りが入る
 res.render('keiyo2', {data: station2} );
 });
+
+// --- CRUD機能の追加部分（PDFスライドP.13～16を適用）---
+
+// Create (新規登録)フォームの表示
+// /keiyo2/create [cite: 107]
+app.get("/keiyo2/create", (req, res) => {
+  res.redirect('/public/keiyo2_new.html'); [cite: 109]
+});
+
+// Create (新規登録)処理
+// POST /keiyo2 [cite: 107]
+app.post("/keiyo2", (req, res) => {
+  // 本来ならここにDBとのやり取りが入る
+  const id = station2.length + 1;
+  const code = req.body.code;
+  const name = req.body.name;
+  const change = req.body.change;
+  const passengers = req.body.passengers;
+  const distance = req.body.distance;
+  station2.push( { id: id, code: code, name: name, change: change, passengers: passengers, distance: distance } ); [cite: 113]
+  console.log( station2 );
+  res.render('keiyo2', {data: station2} ); [cite: 113]
+});
+
+// Edit (編集)フォームの表示
+// /keiyo2/edit/:number [cite: 107]
+app.get("/keiyo2/edit/:number",(req, res) =>{
+  // 本来ならここにDBとのやり取りが入る
+  const number= req.params.number;
+  const detail= station2[ number ];
+  res.render('keiyo2_edit',{id: number, data: detail} ); [cite: 114]
+});
+
+// Update (更新)処理
+// POST /keiyo2/update/:number [cite: 107]
+app.post("/keiyo2/update/:number",(req, res) =>{
+  // 本来は変更する番号が存在するか，各項目が正しいか厳重にチェックする
+  // 本来ならここにDBとのやり取りが入る
+  station2[req.params.number].code= req.body.code;
+  station2[req.params.number].name= req.body.name;
+  station2[req.params.number].change= req.body.change;
+  station2[req.params.number].passengers= req.body.passengers;
+  station2[req.params.number].distance= req.body.distance; [cite: 115]
+  console.log( station2 );
+  res.redirect('/keiyo2' ); [cite: 115]
+});
+
+// Delete (削除)処理
+// /keiyo2/delete/:number [cite: 107]
+app.get("/keiyo2/delete/:number", (req, res) => {
+  // 本来は削除の確認ページを表示し、厳重にチェックする
+  // 本来ならここにDBとのやり取りが入る
+  station2.splice( req.params.number, 1 ); [cite: 112]
+  res.redirect('/keiyo2' ); [cite: 112]
+});
+
+// Read (詳細表示)
+// /keiyo2/:number の既存コードを修正（idを渡すように変更）
+// ※このルートは最も汎用的なパスであるため、他の固有パスの後に定義する必要がある
 app.get("/keiyo2/:number", (req, res) => {
 // 本来ならここにDBとのやり取りが入る
 const number = req.params.number;
 const detail = station2[ number ];
-res.render('keiyo2_detail', {data: detail} );
+// 詳細表示、編集、削除のためにインデックス(number)をidとして渡す
+res.render('keiyo2_detail', {id: number, data: detail} ); [cite: 110]
 });
 
 app.listen(8080, () => console.log("Example app listening on port 8080!"));
