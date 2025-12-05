@@ -1,36 +1,56 @@
-# Tasks — イタリアンブレインロット キャラクター図鑑プロジェクト
+# タスクリスト（characters システム）
 
-## 目的
-ネットミーム「イタリアンブレインロット」の世界観・キャラクターを整理し、
-公式またはファン用の「キャラクター図鑑」を作成する。
+行う作業を整理するために，タスクリストを作成する．
 
-## タスク一覧
+## タスクリスト
 
-### 1. 情報収集
-- 公式サイト（図鑑サイト）で掲載されている全キャラクター名・画像・説明を取得 :contentReference[oaicite:2]{index=2}  
-- キャラクターの数、種類、カテゴリ（例：動物系／物体混合、ホラー系／コミカル系など）を把握  
-- コミュニティ／ファンサイトでの設定やストーリー、ファンアートなどのロア情報を収集 :contentReference[oaicite:3]{index=3}
+- [ ] 開発者向けドキュメントの作業
+  - [x] 対象とするシステムの決定（characters：キャラクター管理） :thinking:
+  - [ ] データ構造の決定（id, name, description, imageURL など） :thinking:
+  - [ ] ページ構造の検討（一覧・詳細・追加・編集） :thinking:
+  - [ ] ページ遷移の検討 :thinking:
+  - [ ] HTTPメソッドとリソース名の決定（/characters を中心に統一）
+  - [ ] ページ遷移図の作成 :writing_hand:
+  - [ ] ページ構造の決定
+  - [ ] ドキュメントの構成の検討 :thinking:
+  - [ ] 概要 :writing_hand:
+  - [ ] HTTPメソッドとリソース名一覧 :writing_hand:
+  - [ ] データ構造 :writing_hand:
+  - [ ] リソース名ごとの機能の詳細 :writing_hand:
 
-### 2. カテゴリ設計
-- キャラクター分類の軸を決める（例：見た目／種別、テーマ、人気度、由来のネタ元など）  
-- タグ付けなど、検索しやすくする仕組みを検討  
+- [ ] 管理者向けドキュメントの構成
+  - [ ] インストールから起動までの手順確認 :computer:
+  - [ ] インストール方法 :writing_hand:
+  - [ ] 起動方法 :writing_hand:
+  - [ ] 起動できない場合 :writing_hand:
+  - [ ] 終了方法 :writing_hand:
+  - [ ] 分かっている不具合 :writing_hand:
 
-### 3. 図鑑フォーマット設計
-- 図鑑の統一フォーマットを決める（例：名前、日本語・英語、説明、カテゴリタグ、画像、人気度、新着かどうか、備考など）  
-- Web用、PDF用、もしくはMarkdown用のテンプレートを用意  
+- [ ] 利用者向けドキュメントの作業
+  - [ ] 構成の検討 :thinking:
+  - [ ] スクリーンショットの保存と整理 :computer:
+  - [ ] 概要 :writing_hand:
+  - [ ] 使用できる機能 :writing_hand:
+  - [ ] 起動画面 :writing_hand:
+  - [ ] 一覧表示 :writing_hand:
+  - [ ] 詳細表示 :writing_hand:
+  - [ ] データ追加 :writing_hand:
+  - [ ] データ削除 :writing_hand:
+  - [ ] データ編集 :writing_hand:
 
-### 4. データ整備 & 登録
-- 収集したキャラクター情報をテンプレートに流し込む  
-- 画像ファイル名と説明を対応づけ  
-- 重複や表記ゆれのチェック  
+- [ ] 提出 :tada:
 
-### 5. メンテナンス & 更新体制
-- 新キャラクター追加時の更新手順を決めておく :contentReference[oaicite:4]{index=4}  
-- バージョン管理 or 更新履歴の保持  
-- 誤記／リンク切れのチェック  
+---
 
-## 成果物
-- `tasks.md`（このタスク管理ファイル）  
-- `characters_spec.md`（キャラクター仕様書／図鑑フォーマット定義）  
-- 実際の「キャラクター図鑑データ」（Markdown／HTML／JSONなど）  
+## Mermaid（ページ遷移の例）
 
+mermaid
+stateDiagram-v2
+    [*] --> List
+    List --> Detail : キャラクター名をクリック
+    Detail --> Edit : 編集ボタン
+    Edit --> List : 更新完了
+    List --> Add : 追加ボタン
+    Add --> List : 登録完了
+    Detail --> Delete : 削除ボタン
+    Delete --> List : 削除完了
